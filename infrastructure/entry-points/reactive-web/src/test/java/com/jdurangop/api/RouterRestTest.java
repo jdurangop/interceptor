@@ -65,12 +65,16 @@ class RouterRestTest {
         webTestClient.get()
             .uri("/api/book/1323")
             .exchange()
-            .expectStatus().isBadRequest();
+            .expectStatus().isBadRequest()
+            .expectHeader()
+            .doesNotExist("X-Request-Id");
 
         webTestClient.post()
             .uri("/api/book")
             .exchange()
-            .expectStatus().isBadRequest();
+            .expectStatus().isBadRequest()
+            .expectHeader()
+            .doesNotExist("X-Request-Id");
     }
 
     @Test

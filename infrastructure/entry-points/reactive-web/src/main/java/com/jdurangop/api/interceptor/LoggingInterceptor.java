@@ -27,9 +27,10 @@ public class LoggingInterceptor implements WebFilter {
                     .datetime(LocalDateTime.now())
                     .method(request.getMethod().name())
                     .path(request.getPath().value())
-                    .status(response.getStatusCode().value());
+                    .status(response.getStatusCode().value())
+                    .build();
 
-                logUseCase.save(log.build());
+                logUseCase.save(log);
             });
     }
 }
