@@ -130,8 +130,8 @@ class AuthInterceptorTest {
         restConsumer = new RestConsumer(webClient);
 
         when(tokenGenerator.getNew())
-            .thenReturn(Mono.delay(Duration.ofMillis(1000))
-                .map(l -> VALID_TOKEN));
+            .thenReturn(Mono.just(VALID_TOKEN)
+                .delaySubscription(Duration.ofMillis(1000)));
 
         var requests = Mono.zip(
             // in parallel, starts token refresh process, two requests sent to server
@@ -139,9 +139,11 @@ class AuthInterceptorTest {
             // in parallel, starts token refresh process, two requests sent to server
             restConsumer.findById("2"),
             // after 500ms, token still refreshing, should wait for the new token, one request sent to server
-            Mono.delay(Duration.ofMillis(500)).flatMap(l -> restConsumer.findById("3")),
+            restConsumer.findById("3")
+                .delaySubscription(Duration.ofMillis(500)),
             // after 1500ms, token should be refreshed, should use the new token, one request sent to server
-            Mono.delay(Duration.ofMillis(1500)).flatMap(l -> restConsumer.findById("4"))
+            restConsumer.findById("4")
+                .delaySubscription(Duration.ofMillis(1500))
         );
 
         StepVerifier.create(requests)
